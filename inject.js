@@ -87,9 +87,9 @@ chrome.extension.sendMessage({}, function(response) {
 
     tc.videoController.prototype.initializeControls = function() {
       var document = this.document;
-      var speed = parseFloat(tc.settings.speed).toFixed(2),
-        top = Math.max(this.video.offsetTop, 0) + "px",
-        left = Math.max(this.video.offsetLeft, 0) + "px";
+      var speed = parseFloat(tc.settings.speed).toFixed(2); //,
+        // top = Math.max(this.video.offsetTop, 0) + "px",
+        // left = Math.max(this.video.offsetLeft, 0) + "px";
 
       var prevent = function(e) {
         e.preventDefault();
@@ -103,9 +103,25 @@ chrome.extension.sendMessage({}, function(response) {
       wrapper.addEventListener('mousedown', prevent, true);
       wrapper.addEventListener('click', prevent, true);
 
-      if (tc.settings.startHidden) {
+      // if (tc.settings.startHidden) {
+      wrapper.classList.add('vsc-hidden');
+      // }
+
+      // Show and reposition the controls when mousing over the video
+      this.video.addEventListener('mouseenter', function(event) {
+        wrapper.classList.remove('vsc-hidden');
+
+        var rect = this.video.getBoundingClientRect();
+        var top = rect.top + document.scrollingElement.scrollTop;
+        var left = rect.left + document.scrollingElement.scrollLeft;
+
+        wrapper.style.top = top + 'px';
+        wrapper.style.left = left + 'px';
+      }.bind(this));
+
+      this.video.addEventListener('mouseleave', function(event) {
         wrapper.classList.add('vsc-hidden');
-      }
+      }.bind(this));
 
       var shadow = wrapper.createShadowRoot();
       var shadowTemplate = `
@@ -113,7 +129,7 @@ chrome.extension.sendMessage({}, function(response) {
           @import "${chrome.extension.getURL('shadow.css')}";
         </style>
 
-        <div id="controller" style="top:${top}; left:${left}">
+        <div id="controller">
           <span data-action="drag" class="draggable">${speed}</span>
           <span id="controls">
             <button data-action="rewind" class="rw">«</button>
@@ -139,10 +155,7 @@ chrome.extension.sendMessage({}, function(response) {
       var fragment = document.createDocumentFragment();
       fragment.appendChild(wrapper);
 
-      // Note: when triggered via a MutationRecord, it's possible that the
-      // target is not the immediate parent. This appends the controller as
-      // the first element of the target, which may not be the parent.
-      this.parent.insertBefore(fragment, this.parent.firstChild);
+      document.body.appendChild(fragment);
       this.video.classList.add('vsc-initialized');
       this.video.dataset['vscid'] = this.id;
     }

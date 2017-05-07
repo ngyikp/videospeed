@@ -9,10 +9,6 @@
 }
 
 #controller {
-  position: absolute;
-  top: 0;
-  left: 0;
-
   background: black;
   color: white;
 
@@ -21,7 +17,6 @@
   margin: 10px 10px 10px 15px;
 
   cursor: default;
-  z-index: 9999999;
   opacity: 0.3;
 }
 
